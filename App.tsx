@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import {useState} from 'react';
 
   const quotes = [
@@ -11,6 +11,8 @@ import {useState} from 'react';
 export default function App() {
   const [count, setCount] = useState<number>(0);
   const [quote,setQuote] = useState<string>("Yêu nhau nha")
+  const [name, setName] = useState<string>("");
+
   function handlePress() {
     setCount(0);
   }
@@ -41,8 +43,21 @@ export default function App() {
           color = "pink"
           onPress={handlePressLove}
         />
+
       </View>
-      
+      <View style={{ marginTop: 20 }}>
+        <Text style={styles.Text}>Name: {name}</Text>
+        <TextInput
+          multiline
+          autoCapitalize='characters'
+          style={{  borderColor: 'gray', borderWidth: 1, width: 200, marginBottom: 20,padding: 10,margin: 5 }}
+          placeholder="Input your name!"
+          onChangeText={(value) => setName(value)}
+          maxLength={2}
+          keyboardType="numeric"
+          
+        />
+      </View>
       <StatusBar style="auto" />
     </View>
   );
