@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, Button, FlatList, ScrollView } from 
 
 export default function App() {
   const [students, setStudents] = useState([
-    {id: 1, name: 'John Doe', age: 20},
+    {id: 1, name: 'John Doe', age: 20,},
     {id: 2, name: 'Jane Smith', age: 22},
     {id: 3, name: 'Sam Brown', age: 19},
     {id: 4, name: 'Lisa White', age: 21},
@@ -17,7 +17,22 @@ export default function App() {
   return (
     <View style = {styles.container}>
       <Text style ={{fontSize:30}}>Hello World!</Text>
-      <ScrollView>
+      <FlatList
+      data= {students}
+      keyExtractor={item => item.id.toString()}
+      numColumns={2}
+      renderItem={({item}) => {
+        return (
+          <View style={styles.body}>
+            <Text>{item.name}</Text>
+            <Text>Age: {item.age}</Text>
+          </View>
+        );
+      }}
+      />
+
+
+      {/* <ScrollView>
         {students.map(item => {
             return(
               <View key={item.id} style={styles.body}>
@@ -26,7 +41,7 @@ export default function App() {
               </View>
             )
         })}
-      </ScrollView>
+      </ScrollView> */}
     </View>
   );
 }
@@ -43,5 +58,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'pink',
     borderRadius: 10,
     marginBottom: 20,
+    marginHorizontal: 30,
   }
 });
