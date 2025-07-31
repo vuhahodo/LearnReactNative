@@ -1,90 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
-import {useState} from 'react';
-
-  const quotes = [
-    "Yêu",
-    "Không",
-    "Khog biet",
-  ];
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Button, FlatList, ScrollView } from 'react-native';
 
 export default function App() {
-  const [count, setCount] = useState<number>(0);
-  const [quote,setQuote] = useState<string>("Yêu nhau nha")
-  const [name, setName] = useState<string>("");
-
-  function handlePress() {
-    setCount(0);
-  }
-  function handlePressLove() {
-    const randomIndex = Math.floor(Math.random() * quotes.length)
-    setQuote(quotes[randomIndex]);
-  }  
-  
+  const [students, setStudents] = useState([
+    {id: 1, name: 'John Doe', age: 20},
+    {id: 2, name: 'Jane Smith', age: 22},
+    {id: 3, name: 'Sam Brown', age: 19},
+    {id: 4, name: 'Lisa White', age: 21},
+    {id: 5, name: 'Tom Green', age: 23},
+    {id: 6, name: 'Emma Black', age: 20},
+    {id: 7, name: 'Chris Blue', age: 22},
+    {id: 8, name: 'Olivia Red', age: 19},
+    {id: 9, name: 'Liam Yellow', age: 21},
+    {id: 10, name: 'Sophia Purple', age: 23},
+  ]);
   return (
-    <View style={styles.container}>
-      <Text style ={styles.test}>Hello World</Text>
-      <Text style ={styles.editText}>What the helk</Text>
-      <Button
-        title={count.toString()}
-        onPress={() => setCount(count + 1)}
-      />
-      <View style={{ marginTop: 20 , marginBottom: 20 }}>
-        <Button 
-          color={"red"}
-          title="Reset Count"
-          onPress={handlePress}
-        />
-      </View>
-      <View>
-        <Text style={styles.Text}>Yêu hay không </Text>
-        <Button
-          title  = {quote}
-          color = "pink"
-          onPress={handlePressLove}
-        />
-
-      </View>
-      <View style={{ marginTop: 20 }}>
-        <Text style={styles.Text}>Name: {name}</Text>
-        <TextInput
-          multiline
-          autoCapitalize='characters'
-          style={{  borderColor: 'gray', borderWidth: 1, width: 200, marginBottom: 20,padding: 10,margin: 5 }}
-          placeholder="Input your name!"
-          onChangeText={(value) => setName(value)}
-          maxLength={2}
-          keyboardType="numeric"
-          
-        />
-      </View>
-      <StatusBar style="auto" />
+    <View style = {styles.container}>
+      <Text style ={{fontSize:30}}>Hello World!</Text>
+      <ScrollView>
+        {students.map(item => {
+            return(
+              <View key={item.id} style={styles.body}>
+                <Text>{item.name}</Text>
+                <Text>Age: {item.age}</Text>
+              </View>
+            )
+        })}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  
   container: {
     flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  Text: {
-    fontSize: 20,
-    color: 'black',
-    fontWeight: 'bold',
-
-  },
-  editText: {
-    fontSize: 40,
-    color: 'pink',
-    fontWeight: 'bold',
-  },
-  test: {
-    fontSize: 20,
-    color: 'blue',
-    fontWeight: 'normal',
+  body: {
+    padding: 30,
+    backgroundColor: 'pink',
+    borderRadius: 10,
+    marginBottom: 20,
   }
 });
