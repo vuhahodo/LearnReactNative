@@ -1,112 +1,214 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, FlatList, ScrollView } from 'react-native';
+import {
+  Button,
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Alert,
+} from 'react-native';
+import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 
-interface Itodo{
+interface Todo {
   id: number;
-  name: string;
+  text: string;
 }
-function randomInteger(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+
+function randomId(a: number, b: number) {
+  return Math.floor(Math.random() * (b - a + 1)) + a;
+}
+
+function TodoApp() {
+  const [todos, setTodos] = useState('');
+  const [todoList, setTodoList] = useState<Todo[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const handleAddTodo = () => {
+    if (todos.trim() === '') {
+      Alert.alert('Error', 'Please enter a valid task.');
+      return;
+    }
+
+    if (editingId !== null) {
+      // Sửa todo hiện tại
+      setTodoList((prev) =>
+        prev.map((todo) =>
+          todo.id === editingId ? { ...todo, text: todos } : todo
+        )
+      );
+      setEditingId(null);
+    } else {
+      // Thêm mới
+      setTodoList([...todoList, { id: randomId(2, 2000000), text: todos }]);
+    }
+
+    setTodos('');
+  };
+
+  const handleDeleteTodo = (id: number) => {
+    Alert.alert('Delete Todo', 'Are you sure you want to delete this task?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => {
+          setTodoList(todoList.filter((todo) => todo.id !== id));
+        },
+      },
+    ]);
+  };
+
+  const handleEditTodo = (id: number) => {
+    const todoToEdit = todoList.find((todo) => todo.id === id);
+    if (todoToEdit) {
+      setTodos(todoToEdit.text);
+      setEditingId(todoToEdit.id);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <Text style={styles.header}>🎯 Todo App</Text>
+
+      <TextInput
+        placeholder="Type your task..."
+        style={styles.input}
+        value={todos}
+        onChangeText={setTodos}
+      />
+
+      <View style={styles.buttonContainer}>
+        <Button title={editingId ? 'Update Todo' : 'Add Todo'} onPress={handleAddTodo} color="#1e90ff" />
+      </View>
+
+      <FlatList
+        data={todoList}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContainer}
+        renderItem={({ item }) => (
+          <Swipeable
+            renderRightActions={() => (
+              <View style={styles.swipeDeleteBox}>
+                <Text style={styles.swipeDeleteText}>Xóa</Text>
+              </View>
+            )}
+            renderLeftActions={() => (
+              <View style={styles.swipeEditBox}>
+                <Text style={styles.swipeEditText}>Sửa</Text>
+              </View>
+            )}
+            onSwipeableRightOpen={() => handleDeleteTodo(item.id)}
+            onSwipeableLeftOpen={() => handleEditTodo(item.id)}
+            overshootRight={false}
+          >
+            <Pressable
+              style={({ pressed }) => [
+                styles.todoItem,
+                pressed && {
+                  transform: [{ scale: 0.97 }],
+                  backgroundColor: '#dbeeff',
+                  shadowOpacity: 0.2,
+                },
+              ]}
+            >
+              <Text style={styles.todoText}>{item.text}</Text>
+            </Pressable>
+          </Swipeable>
+        )}
+      />
+    </KeyboardAvoidingView>
+  );
 }
 
 export default function App() {
-  const [students, setStudents] = useState([
-    {id: 1, name: 'John Doe', age: 20,},
-    {id: 2, name: 'Jane Smith', age: 22},
-    {id: 3, name: 'Sam Brown', age: 19},
-    {id: 4, name: 'Lisa White', age: 21},
-    {id: 5, name: 'Tom Green', age: 23},
-    {id: 6, name: 'Emma Black', age: 20},
-    {id: 7, name: 'Chris Blue', age: 22},
-    {id: 8, name: 'Olivia Red', age: 19},
-    {id: 9, name: 'Liam Yellow', age: 21},
-    {id: 10, name: 'Sophia Purple', age: 23},
-  ]);
-    const [todos, setTodos] = useState("");
-  const [todoList, setTodoList] = useState<Itodo[]>([]);
-const handleAddTodo = () => {
-        if (todos.trim() === "") {
-          alert("Please enter a todo item.");
-        }
-          setTodoList([...todoList,
-             { id: randomInteger(2, 2000000), name: todos}]);
-          setTodos("");
-        }
-
   return (
-    <View style = {styles.container}>
-      {/* header */}
-      <Text style = {styles.header}>TODO APP</Text>
-      {/* form */}
-      <View>
-        <TextInput style={styles.todoInput}
-          placeholder="Enter todo"
-          value={todos}
-          onChangeText={(text) => setTodos(text)}
-        />
-
-        <Button title="Add Todo" onPress={handleAddTodo} />
-      </View>
-      {/* list todo */}
-      <View style={styles.body}>
-        <FlatList
-          data={todoList}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <Text style={styles.todoItem}>
-              {item.name}
-            </Text>
-          )}
-        />
-   
-      </View>
-    </View>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <TodoApp />
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-
-    padding: 20,
-    backgroundColor: 'lightblue',
-    borderRadius: 10,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'darkblue',
-    shadowColor: '#000',
-  },
   container: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 60,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
-
-   
+    backgroundColor: '#f0f8ff',
   },
-  body: {
-    padding: 30,
-    backgroundColor: 'pink',
-    borderRadius: 10,
-    margin: 20,
-    marginHorizontal: 10,
-  },
-  todoInput: {
-    height: 40,
-    borderColor: 'green',
-    borderBottomWidth: 1,
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
     marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    textAlign: 'center',
+    color: '#2c3e50',
+  },
+  input: {
+    height: 50,
+    borderColor: '#aaa',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    marginBottom: 20,
+  },
+  listContainer: {
+    paddingBottom: 100,
   },
   todoItem: {
-
-    padding: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    fontSize: 20,
-    borderStyle: 'dashed',
-    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    borderLeftWidth: 5,
+    borderLeftColor: '#1e90ff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  todoText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  swipeDeleteBox: {
+    backgroundColor: '#ff4d4f',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    height: '90%',
+  },
+  swipeDeleteText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  swipeEditBox: {
+    backgroundColor: '#ffd700',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    borderRadius: 8,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    height: '90%',
+  },
+  swipeEditText: {
+    color: '#333',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
